@@ -354,16 +354,14 @@ function renderChild() {
 }
 
 async function toggleJob(id) {
-  setSyncing(true);
-  const latest = await cloudLoad(roomCode);
+  // まずローカルで即反映
   const t = today();
-  const cur = latest[t] || [];
+  const cur = records[t] || [];
   const next = cur.includes(id) ? cur.filter(x=>x!==id) : [...cur, id];
-  const updated = {...latest, [t]: next};
-  await cloudSave(roomCode, updated);
-  records = updated;
+  records = {...records, [t]: next};
   renderChild();
-  setSyncing(false);
+  // バックグラウンドでクラウド保存
+  cloudSave(roomCode, records);
 }
 
 // ── PARENT ──
